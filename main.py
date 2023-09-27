@@ -1,32 +1,25 @@
-#! /usr/bin/python
-
 import socket
 import argparse
 
-HOST = "0.0.0.0"  # Standard loopback interface address (localhost)
-PORT = 5555  # Port to listen on (non-privileged ports are > 1023)
-
-
-def main(args):
+def run_server(host, port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((args.target, args.port))
+        s.bind((host, port))
         s.listen()
+        print(f"Serwer nasłuchuje na {host}:{port}")
         conn, addr = s.accept()
         with conn:
-            print(f"Connected by {addr}")
+            print(f"Połączono z {addr}")
             while True:
                 data = conn.recv(1024)
                 if not data:
                     break
+                print(f"Odebrano: {data.decode()}")
                 conn.sendall(data)
 
-
-if _name_ == '_main_':
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Serwer TCP')
-
-    parser.add_argument('-t', '--target', default='')
-    parser.add_argument('-p', '--port', type=int, default=5555)
-
+    parser.add_argument('-t', '--target', default='0.0.0.0', help='Adres, na którym serwer ma nasłuchiwać')
+    parser.add_argument('-p', '--port', type=int, default=5555, help='Port, na którym serwer ma nasłuchiwać')
     args = parser.parse_args()
 
-    main(args)
+    run_server(args.target, args.port)
